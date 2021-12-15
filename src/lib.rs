@@ -1209,6 +1209,21 @@ impl<'a, K: Hash + Eq, V, S: BuildHasher> Entry<'a, K, V, S> {
             Entry::Vacant(entry) => entry.insert(default()),
         }
     }
+
+    /// Provides in-place mutable access to an occupied entry before any
+    /// potential inserts into the map.
+    pub fn and_modify<F>(self, f: F) -> Self
+    where
+        F: FnOnce(&mut V),
+    {
+        match self {
+            Entry::Occupied(mut entry) => {
+                f(entry.get_mut());
+                Entry::Occupied(entry)
+            }
+            Entry::Vacant(entry) => Entry::Vacant(entry),
+        }
+    }
 }
 
 impl<'a, K: Hash + Eq, V, S: BuildHasher> OccupiedEntry<'a, K, V, S> {
