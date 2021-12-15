@@ -1194,6 +1194,20 @@ impl<'a, K: Hash + Eq, V, S: BuildHasher> Entry<'a, K, V, S> {
 
     /// Ensures a value is in the entry by inserting the default if empty, and returns
     /// a mutable reference to the value in the entry.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use linked_hash_map::LinkedHashMap;
+    ///
+    /// let mut map: LinkedHashMap<&str, u32> = LinkedHashMap::new();
+    ///
+    /// map.entry("poneyland").or_insert(3);
+    /// assert_eq!(map["poneyland"], 3);
+    ///
+    /// *map.entry("poneyland").or_insert(10) *= 2;
+    /// assert_eq!(map["poneyland"], 6);
+    /// ```
     pub fn or_insert(self, default: V) -> &'a mut V {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -1203,6 +1217,19 @@ impl<'a, K: Hash + Eq, V, S: BuildHasher> Entry<'a, K, V, S> {
 
     /// Ensures a value is in the entry by inserting the result of the default function if empty,
     /// and returns a mutable reference to the value in the entry.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use linked_hash_map::LinkedHashMap;
+    ///
+    /// let mut map: LinkedHashMap<&str, String> = LinkedHashMap::new();
+    /// let s = "hoho".to_string();
+    ///
+    /// map.entry("poneyland").or_insert_with(|| s);
+    ///
+    /// assert_eq!(map["poneyland"], "hoho".to_string());
+    /// ```
     pub fn or_insert_with<F: FnOnce() -> V>(self, default: F) -> &'a mut V {
         match self {
             Entry::Occupied(entry) => entry.into_mut(),
@@ -1212,6 +1239,24 @@ impl<'a, K: Hash + Eq, V, S: BuildHasher> Entry<'a, K, V, S> {
 
     /// Provides in-place mutable access to an occupied entry before any
     /// potential inserts into the map.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use linked_hash_map::LinkedHashMap;
+    ///
+    /// let mut map: LinkedHashMap<&str, u32> = LinkedHashMap::new();
+    ///
+    /// map.entry("poneyland")
+    ///    .and_modify(|e| { *e += 1 })
+    ///    .or_insert(42);
+    /// assert_eq!(map["poneyland"], 42);
+    ///
+    /// map.entry("poneyland")
+    ///    .and_modify(|e| { *e += 1 })
+    ///    .or_insert(42);
+    /// assert_eq!(map["poneyland"], 43);
+    /// ```
     pub fn and_modify<F>(self, f: F) -> Self
     where
         F: FnOnce(&mut V),
